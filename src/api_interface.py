@@ -53,8 +53,10 @@ def get_activity_data(input, type="user"):
 
 def __load__(url):
 
-    with open("token.txt0", "r") as file:
-        token = file.read()
+    with open("token.txt", "r") as file:
+        token = parse(file.read())["token"]
+
+    print(token)
 
     headers = {"Authorization": f"token {token}"}
 
