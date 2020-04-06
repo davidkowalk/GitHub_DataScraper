@@ -1,16 +1,17 @@
 from json import loads as parse
 from json import dumps
 import urllib3
+from time import sleep
 
 def get_activity(user, page=1, auth = None):
     url_str = f"https://api.github.com/users/{user}/events?page={page}"
 
-    if auth:
-        headers = make_headers(basic_auth=f'{auth[0]}:{auth[1]}')
-    else:
-        headers = None
-
-    contents = parse(__load__(url_str))
+    reply = __load__(url_str)
+    try:
+        contents = parse(reply)
+    except:
+        print("Value Error")
+        print(reply)
 
     return contents
 
@@ -21,15 +22,15 @@ def get_activity_data(input, type="user"):
 
     if type == "user":
 
-        activity = parse('[{}]')
+        activity = []
         page = 1
 
         while True:
-            act_page = get_activity(input)
+            act_page = get_activity(input, page=page)
             if len(act_page) > 0:
-                #dumps(act_page, indent=4)
                 activity += act_page
-                sleep(50)
+                page += 1
+                sleep(0.01) # wait 10ms
             else:
                 break
 
@@ -58,7 +59,10 @@ def __load__(url):
 
     print(token)
 
-    headers = {"Authorization": f"token {token}"}
+    headers = {
+        "Authorization": f"token {token}",
+        "user-agent": "Python Urllib3/2.5"
+    }
 
     http = urllib3.PoolManager()
     rq = http.request('GET', url, headers=headers)
