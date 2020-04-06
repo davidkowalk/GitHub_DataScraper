@@ -1,8 +1,6 @@
 from json import loads as parse
 from json import dumps
-from urllib.util import make_headers
-from urllib.parse import quote_plus as url
-from urllib.request import urlopen as ureq
+import urllib3
 
 def get_activity(user, page=1, auth = None):
     url_str = f"https://api.github.com/users/{user}/events?page={page}"
@@ -54,7 +52,12 @@ def get_activity_data(input, type="user"):
 
 
 def __load__(url):
-    client = ureq(url)
-    content = client.read()
-    client.close()
-    return content
+
+    with open("token.txt0", "r") as file:
+        token = file.read()
+
+    headers = {"Authorization": f"token {token}"}
+
+    http = urllib3.PoolManager()
+    rq = http.request('GET', url, headers=headers)
+    return rq.data
